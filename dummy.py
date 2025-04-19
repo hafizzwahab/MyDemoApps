@@ -1,10 +1,11 @@
 import streamlit as st
+
+# ✅ This MUST come immediately after the import
+st.set_page_config(page_title="Fruteez AI Assistant", layout="wide")
+
 import pandas as pd
 import plotly.express as px
 from datetime import datetime
-
-# MUST be the first Streamlit command
-st.set_page_config(page_title="Fruteez AI Assistant", layout="wide")
 
 # Simulated invoice database
 @st.cache_data
@@ -13,12 +14,10 @@ def load_data():
 
 invoices = load_data()
 
-# --- UI ---
-st.set_page_config(page_title="Fruteez AI Assistant", layout="wide")
+# --- UI and app logic below ---
 st.title("🧠 Fruteez AI Assistant")
 st.markdown("Talk to your invoicing system like never before. Type a command below:")
 
-# Chat input
 query = st.text_input("💬 Type your request (in French or English)", placeholder="e.g. Show me unpaid invoices for Monoprix")
 
 # --- Simple Query Parser ---
