@@ -3,10 +3,13 @@ import pandas as pd
 import plotly.express as px
 from datetime import datetime
 
+# MUST be the first Streamlit command
+st.set_page_config(page_title="Fruteez AI Assistant", layout="wide")
+
 # Simulated invoice database
 @st.cache_data
 def load_data():
-    return pd.read_csv("invoices_mock.csv")  # columns: client, date, amount, status, region
+    return pd.read_csv("invoices_mock.csv")
 
 invoices = load_data()
 
