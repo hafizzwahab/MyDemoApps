@@ -3,7 +3,8 @@ import google.generativeai as genai
 
 # Configure Gemini API
 genai.configure(api_key="AIzaSyAckighcNr9MJPTNh2YSyCD5aalWskYEYE")
-model = genai.GenerativeModel("gemini-pro")
+model = genai.GenerativeModel("models/text-bison-001")
+
 
 # Streamlit UI
 st.set_page_config(page_title="Invoice Chatbot", layout="centered")
