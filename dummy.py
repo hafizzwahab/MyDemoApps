@@ -1,56 +1,43 @@
 import streamlit as st
-import pandas as pd
-import plotly.express as px
 import google.generativeai as genai
-from datetime import datetime
 
-# --- CONFIG ---
-st.set_page_config(page_title="Fruteez AI Assistant", layout="wide")
-genai.configure(api_key="AIzaSyAckighcNr9MJPTNh2YSyCD5aalWskYEYE")  # Your Gemini API key
-
-# --- Load dummy data ---
-@st.cache_data
-def load_data():
-    return pd.read_csv("invoices_mock.csv")  # Make sure it's in the same directory
-
-invoices = load_data()
-
-# --- Gemini Model Setup ---
+# Configure Gemini API
+genai.configure(api_key="AIzaSyAckighcNr9MJPTNh2YSyCD5aalWskYEYE")
 model = genai.GenerativeModel("gemini-pro")
 
-def query_gemini(user_input):
-    prompt = f"""You are Fruteez AI Assistant, helping a billing team manage invoices in an ERP called Dolibarr. 
-You can answer questions, generate invoices, and provide business reports using the following data:
-{invoices.head(10).to_string(index=False)}
+# Streamlit UI
+st.set_page_config(page_title="Invoice Chatbot", layout="centered")
+st.title("📋 Invoice Management Chatbot")
+st.write("Posez vos questions sur les factures ou la gestion des paiements 👇")
 
-Respond clearly in French (or Tunisian tone if internal).
+# Suggestive Questions
+suggestions = [
+    "Montre-moi les factures impayées.",
+    "Quelle est la dernière facture de Monoprix ?",
+    "Génère une facture pour Carrefour aujourd'hui.",
+    "Donne-moi un rapport des paiements par région.",
+    "Est-ce que Géant a réglé ses factures ?"
+]
 
-Now answer the following user request:
-{user_input}
-"""
-    response = model.generate_content(prompt)
-    return response.text
+st.markdown("### 💡 Suggestions")
+for s in suggestions:
+    if st.button(s):
+        st.session_state.user_input = s
 
-# --- UI ---
-st.title("🧠 Fruteez AI Assistant – Dolibarr Smart ERP Chat")
-st.markdown("Parlez à votre ERP comme à un collègue. Posez une question ci-dessous 👇")
+# Chat Input
+user_input = st.text_input("💬 Votre question", value=st.session_state.get("user_input", ""), key="chat_input")
 
-user_input = st.text_input("💬 Votre demande", placeholder="e.g. Montre-moi les factures impayées pour Monoprix")
-
+# Gemini Prompt Logic
 if user_input:
-    with st.spinner("Analyse en cours avec Gemini..."):
-        response = query_gemini(user_input)
+    with st.spinner("Analyse en cours..."):
+        prompt = f"""
+Tu es un assistant intelligent pour un système de gestion de factures. 
+Toutes les questions de l'utilisateur concernent la facturation, les paiements, les clients, ou les rapports financiers.
 
-    st.markdown("### 🤖 Réponse de Fruteez AI")
-    st.write(response)
+Réponds de manière claire, professionnelle, et orientée vers la gestion des factures.
 
-    # Optional visual response for reporting
-    if "rapport" in user_input.lower() or "report" in user_input.lower():
-        st.markdown("### 📊 Vue graphique : Factures impayées par région")
-        chart = invoices[invoices["status"] == "unpaid"].groupby("region")["amount"].sum().reset_index()
-        fig = px.bar(chart, x="region", y="amount", title="Factures impayées (€) par région")
-        st.plotly_chart(fig)
-
-# --- Footer ---
-st.markdown("---")
-st.caption("Fruteez – Assistant ERP intelligent, propulsé par Gemini & Streamlit")
+Question : {user_input}
+"""
+        response = model.generate_content(prompt)
+        st.markdown("### 🤖 Réponse")
+        st.write(response.text)
